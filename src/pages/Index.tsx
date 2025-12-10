@@ -1,10 +1,38 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 import Icon from "@/components/ui/icon";
+import { useState, FormEvent } from "react";
 
 const Index = () => {
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    date: '',
+    time: '',
+    guests: '2'
+  });
+
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    setTimeout(() => {
+      setIsSubmitting(false);
+      toast({
+        title: "✅ Бронирование принято!",
+        description: `Ждём вас ${formData.date} в ${formData.time}. Мы свяжемся с вами по телефону ${formData.phone}`,
+      });
+      setFormData({ name: '', phone: '', date: '', time: '', guests: '2' });
+    }, 1500);
   };
 
   const menuItems = [
@@ -46,6 +74,9 @@ const Index = () => {
             <button onClick={() => scrollToSection('menu')} className="text-foreground hover:text-primary transition-colors font-medium">
               Меню
             </button>
+            <button onClick={() => scrollToSection('booking')} className="text-foreground hover:text-primary transition-colors font-medium">
+              Бронирование
+            </button>
             <button onClick={() => scrollToSection('contacts')} className="text-foreground hover:text-primary transition-colors font-medium">
               Контакты
             </button>
@@ -76,9 +107,9 @@ const Index = () => {
                   size="lg" 
                   variant="outline"
                   className="border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground font-semibold"
-                  onClick={() => scrollToSection('contacts')}
+                  onClick={() => scrollToSection('booking')}
                 >
-                  Контакты
+                  Забронировать столик
                 </Button>
               </div>
             </div>
@@ -174,6 +205,162 @@ const Index = () => {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="booking" className="py-16 md:py-24 px-4 bg-gradient-to-br from-primary/5 via-background to-primary/10">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-12 animate-fade-in">
+            <div className="inline-block mb-4 px-4 py-2 bg-primary/10 rounded-full">
+              <span className="text-primary font-semibold">🎉 Специальное предложение</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">Забронируйте столик</h2>
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+              При бронировании на будний день — комплимент от шеф-кондитера в подарок!
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 items-start">
+            <Card className="border-2 border-border shadow-2xl bg-card animate-scale-in">
+              <CardContent className="p-8">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="name" className="text-base font-semibold">Ваше имя *</Label>
+                    <Input
+                      id="name"
+                      type="text"
+                      placeholder="Иван Петров"
+                      value={formData.name}
+                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      required
+                      className="h-12 text-base"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="phone" className="text-base font-semibold">Телефон *</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      placeholder="+7 (999) 123-45-67"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                      required
+                      className="h-12 text-base"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="date" className="text-base font-semibold">Дата *</Label>
+                      <Input
+                        id="date"
+                        type="date"
+                        value={formData.date}
+                        onChange={(e) => setFormData({...formData, date: e.target.value})}
+                        required
+                        className="h-12"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="time" className="text-base font-semibold">Время *</Label>
+                      <Input
+                        id="time"
+                        type="time"
+                        value={formData.time}
+                        onChange={(e) => setFormData({...formData, time: e.target.value})}
+                        required
+                        className="h-12"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="guests" className="text-base font-semibold">Количество гостей</Label>
+                    <select
+                      id="guests"
+                      value={formData.guests}
+                      onChange={(e) => setFormData({...formData, guests: e.target.value})}
+                      className="w-full h-12 px-3 rounded-md border border-input bg-background text-base"
+                    >
+                      <option value="1">1 человек</option>
+                      <option value="2">2 человека</option>
+                      <option value="3">3 человека</option>
+                      <option value="4">4 человека</option>
+                      <option value="5">5+ человек</option>
+                    </select>
+                  </div>
+
+                  <Button 
+                    type="submit" 
+                    size="lg" 
+                    className="w-full h-14 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <span className="flex items-center gap-2">
+                        <Icon name="Loader2" size={20} className="animate-spin" />
+                        Отправка...
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        <Icon name="Calendar" size={20} />
+                        Забронировать столик
+                      </span>
+                    )}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+
+            <div className="space-y-6 animate-fade-in">
+              <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10 shadow-lg">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Icon name="Gift" size={24} className="text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-lg mb-2">Комплимент в подарок</h3>
+                      <p className="text-muted-foreground">Забронируйте столик на будний день и получите десерт от шефа бесплатно</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-none shadow-lg bg-card">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Icon name="Clock" size={24} className="text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg mb-1">Удобное время</h3>
+                      <p className="text-muted-foreground text-sm">Мы открыты каждый день с 8:00 до 23:00</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Icon name="Users" size={24} className="text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg mb-1">Уютные залы</h3>
+                      <p className="text-muted-foreground text-sm">Столики у окна, диванная зона и банкетный зал</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Icon name="Sparkles" size={24} className="text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg mb-1">Особые события</h3>
+                      <p className="text-muted-foreground text-sm">Дни рождения, встречи, деловые переговоры</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </section>
